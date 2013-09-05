@@ -48,6 +48,6 @@ public final class DefaultStringifier implements TypeStringifier<Object> {
 	 */
 	@Override
 	public String toString(Object object) {
-		return object.toString();
+		return object == null ? "null!" : object.toString();
 	}
 }

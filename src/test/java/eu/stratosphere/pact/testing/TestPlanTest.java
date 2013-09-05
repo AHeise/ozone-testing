@@ -30,6 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.Ignore;
+
 import junit.framework.AssertionFailedError;
 
 import org.junit.Test;
@@ -42,6 +44,8 @@ import eu.stratosphere.pact.common.contract.FileDataSource;
 import eu.stratosphere.pact.common.contract.GenericDataSource;
 import eu.stratosphere.pact.common.contract.MapContract;
 import eu.stratosphere.pact.common.contract.MatchContract;
+import eu.stratosphere.pact.common.contract.Order;
+import eu.stratosphere.pact.common.contract.Ordering;
 import eu.stratosphere.pact.common.contract.ReduceContract;
 import eu.stratosphere.pact.common.contract.ReduceContract.Combinable;
 import eu.stratosphere.pact.common.io.FileInputFormat;
@@ -199,7 +203,7 @@ public class TestPlanTest {
 	}
 
 	/**
-	 * Converts a input string (a line) into a PactRecord.
+	 * Converts a input concatenatedString (a line) into a PactRecord.
 	 */
 	public static class IntegerInFormat extends TextInputFormat {
 		/*
@@ -215,7 +219,7 @@ public class TestPlanTest {
 	}
 
 	/**
-	 * Converts a PactRecord to a string.
+	 * Converts a PactRecord to a concatenatedString.
 	 */
 	public static class IntegerOutFormat extends FileOutputFormat {
 		private PrintWriter writer;
@@ -388,6 +392,58 @@ public class TestPlanTest {
 	}
 
 	/**
+	 * Tests if a {@link TestPlan} succeeds with values having the same key.
+	 */
+	@Test
+	@Ignore
+	public void shouldSupportSecondarySort() {
+		final ReduceContract map = ReduceContract.builder(SortingReducer.class, PactInteger.class, 0)
+			.name("Map")
+			.secondaryOrder(new Ordering(1, PactString.class, Order.DESCENDING))
+			.build();
+		TestPlan testPlan = new TestPlan(map);
+		// randomize values
+		testPlan.getInput().
+			add(new PactInteger(2), new PactString("x"), new PactString("b")).
+			add(new PactInteger(1), new PactString("x"), new PactString("b")).
+			add(new PactInteger(1), new PactString("y"), new PactString("c")).
+			add(new PactInteger(2), new PactString("y"), new PactString("c")).
+			add(new PactInteger(1), new PactString("z"), new PactString("a")).
+			add(new PactInteger(2), new PactString("z"), new PactString("a"));
+		testPlan.getExpectedOutput(PactInteger.class, PactString.class, PactString.class).
+			add(new PactInteger(1), new PactInteger(3), new PactString("cba")).
+			add(new PactInteger(2), new PactInteger(3), new PactString("cba"));
+		testPlan.run();
+	}
+
+	public static class SortingReducer extends ReduceStub {
+		private final PactString concatenatedString = new PactString();
+
+		/*
+		 * (non-Javadoc)
+		 * @see eu.stratosphere.pact.common.stubs.ReduceStub#reduce(java.util.Iterator,
+		 * eu.stratosphere.pact.common.stubs.Collector)
+		 */
+		@Override
+		public void reduce(Iterator<PactRecord> records, Collector<PactRecord> out) throws Exception {
+			int count = 0;
+			PactRecord last;
+			do {
+				count++;
+				last=records.next();
+				this.concatenatedString.append(last.getField(2, PactString.class));
+			} while (records.hasNext());
+
+			// mark as modified
+			last.setField(1, new PactInteger(count));
+			last.setField(2, this.concatenatedString);
+			System.out.println(this.concatenatedString);
+			out.collect(last);
+			this.concatenatedString.setLength(0);
+		}
+	}
+
+	/**
 	 * Tests a {@link TestPlan} with a {@link CoGroupContract}.
 	 */
 	@Test
@@ -512,7 +568,8 @@ public class TestPlanTest {
 	 *        the output format
 	 * @return the {@link FileDataSinkContract} for the temporary file
 	 */
-	private FileDataSink createOutput(final Contract input, final Class<? extends eu.stratosphere.pact.generic.io.FileOutputFormat<?>> class1) {
+	private FileDataSink createOutput(final Contract input,
+			final Class<? extends eu.stratosphere.pact.generic.io.FileOutputFormat<?>> class1) {
 		try {
 			final FileDataSink out = new FileDataSink(class1, File.createTempFile(
 				"output", null).toURI().toString(), "Output");
@@ -542,7 +599,7 @@ public class TestPlanTest {
 
 	/**
 	 * Converts a (String,Integer)-KeyValuePair into multiple KeyValuePairs. The
-	 * key string is tokenized by spaces. For each token a new
+	 * key concatenatedString is tokenized by spaces. For each token a new
 	 * (String,Integer)-KeyValuePair is emitted where the Token is the key and
 	 * an Integer(1) is the value.
 	 */

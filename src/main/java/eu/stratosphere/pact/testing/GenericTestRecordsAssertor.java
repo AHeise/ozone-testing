@@ -131,10 +131,9 @@ class GenericTestRecordsAssertor<T extends Record> {
 
 		if (actualValuesWithCurrentKey.isEmpty()) {
 			final int diffIndex = itemIndex + expectedValuesWithCurrentKey.size() - 1;
-			Assert.fail(String.format("No value for key %s @ %d, expected: %s, but was: %s",
+			Assert.fail(String.format("No value for key %s @ %d, expected: %s",
 				Arrays.toString(currentKeys), diffIndex,
-				IteratorUtil.stringify(this.typeStringifier, expectedValuesWithCurrentKey.iterator()),
-				this.typeStringifier.toString(actualRecord)));
+				IteratorUtil.stringify(this.typeStringifier, expectedValuesWithCurrentKey.iterator())));
 		}
 
 		// and invoke the fuzzy matcher

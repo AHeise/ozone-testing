@@ -41,7 +41,7 @@ public class PactRecordStringifier implements TypeStringifier<PactRecord> {
 		}
 
 		appendable.append("(");
-		for (int index = 0; index < record.getNumFields(); index++) {
+		for (int index = 0; index < this.schema.length; index++) {
 			if (index > 0)
 				appendable.append(", ");
 			appendable.append(record.getField(index, this.schema[index]).toString());
