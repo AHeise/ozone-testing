@@ -48,16 +48,16 @@ public class GenericTestRecordsTest {
 	 */
 	@Test
 	public void singleAddShouldAddOneItem() {
-		this.records.iterator();
+		this.records.sortedIterator();
 		
 		AssertUtil.assertIteratorEquals("should be empty in the beginning",
-			new ArrayList<PactRecord>().iterator(),			this.records.iterator(),
+			new ArrayList<PactRecord>().iterator(),			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 
 		this.records.add(new PactRecord(new PactInteger(1), new PactString("test1")));
 		AssertUtil.assertIteratorEquals("should contain one element after invoking add once",
 			Arrays.asList(new PactRecord(new PactInteger(1), new PactString("test1"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 
 		this.records.add(new PactRecord(new PactInteger(2), new PactString("test2")));
@@ -66,7 +66,7 @@ public class GenericTestRecordsTest {
 			Arrays.asList(
 				new PactRecord(new PactInteger(1), new PactString("test1")),
 				new PactRecord(new PactInteger(2), new PactString("test2"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 	}
 
@@ -77,7 +77,7 @@ public class GenericTestRecordsTest {
 	public void iterableAddShouldAddAllItems() {
 		AssertUtil.assertIteratorEquals("should be empty in the beginning",
 			new ArrayList<PactRecord>().iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 
 		this.records.add(Arrays.asList(new PactRecord(new PactInteger(1), new PactString("test1")),
@@ -86,7 +86,7 @@ public class GenericTestRecordsTest {
 			Arrays.asList(
 				new PactRecord(new PactInteger(1), new PactString("test1")),
 				new PactRecord(new PactInteger(2), new PactString("test2"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 	}
 
@@ -97,7 +97,7 @@ public class GenericTestRecordsTest {
 	public void arrayAddShouldAddAllItems() {
 		AssertUtil.assertIteratorEquals("should be empty in the beginning",
 			new ArrayList<PactRecord>().iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 
 		this.records.add(new PactRecord(new PactInteger(1), new PactString("test1")),
@@ -106,7 +106,7 @@ public class GenericTestRecordsTest {
 			Arrays.asList(
 				new PactRecord(new PactInteger(1), new PactString("test1")),
 				new PactRecord(new PactInteger(2), new PactString("test2"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			IntString.getEqualer(), IntString.getTypeStringifier());
 	}
 }

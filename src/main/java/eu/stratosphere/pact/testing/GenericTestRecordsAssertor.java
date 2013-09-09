@@ -54,8 +54,8 @@ class GenericTestRecordsAssertor<T extends Record> {
 			GenericTestRecords<T> actualRecords) {
 		this.expectedValues = expectedValues;
 		this.actualRecords = actualRecords;
-		this.actualIterator = actualRecords.iterator();
-		this.expectedIterator = expectedValues.iterator();
+		this.actualIterator = actualRecords.sortedIterator();
+		this.expectedIterator = expectedValues.sortedIterator();
 
 		this.typeConfig = typeConfig;
 		this.fuzzyMatcher = typeConfig.getFuzzyValueMatcher();

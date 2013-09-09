@@ -66,7 +66,7 @@ import eu.stratosphere.pact.runtime.sort.UnilateralSortMerger;
  * @param <V>
  *        the type of the values
  */
-public class GenericTestRecords<T extends Record> implements Closeable, Iterable<T> {
+public class GenericTestRecords<T extends Record> implements Closeable, Iterable<T>  {
 	private final class TestRecordReader implements MutableObjectIterator<T> {
 		private final Iterator<T> inputFileIterator;
 
@@ -200,7 +200,7 @@ public class GenericTestRecords<T extends Record> implements Closeable, Iterable
 	 *        the records to add
 	 * @return this
 	 */
-	public GenericTestRecords<T> add(@SuppressWarnings("unchecked") final T... records) {
+	public GenericTestRecords<T> add(final T... records) {
 		for (final T record : records)
 			this.records.add(record);
 		this.setEmpty(false);
@@ -377,7 +377,7 @@ public class GenericTestRecords<T extends Record> implements Closeable, Iterable
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		final Iterator<T> iterator = this.iterator();
+		final Iterator<T> iterator = this.sortedIterator();
 		while (iterator.hasNext())
 			result = prime * result + iterator.next().hashCode();
 		return result;
@@ -401,8 +401,38 @@ public class GenericTestRecords<T extends Record> implements Closeable, Iterable
 		return this.isEmpty() || !this.records.isEmpty() || this.inputFormatClass != null;
 	}
 
+	public Iterator<T> unsortedIterator() {
+		if (this.isEmpty() || !this.isInitialized())
+			return this.EMPTY_ITERATOR;
+
+		if (this.typeConfig == null)
+			throw new IllegalArgumentException(
+				"No type configuration given. Please set default config for the TestPlan with TestPlan#setTypeConfig or specify them when accessing the inputs/outputs");
+
+		if (this.isAdhoc())
+			return this.records.iterator();
+
+		if (this.path != null)
+			return this.getInputFileIterator();
+
+		try {
+			return new InputIterator<T>(this.typeConfig.getTypeSerializer(), FormatUtil.openInput(this.inputFormatClass,
+				this.configuration));
+		} catch (IOException e) {
+			Assert.fail("creating input format " + StringUtils.stringifyException(e));
+			return null;
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Iterable#iterator()
+	 */
 	@Override
 	public Iterator<T> iterator() {
+		return unsortedIterator();
+	}
+
+	public Iterator<T> sortedIterator() {
 		if (this.isEmpty() || !this.isInitialized())
 			return this.EMPTY_ITERATOR;
 
@@ -479,7 +509,7 @@ public class GenericTestRecords<T extends Record> implements Closeable, Iterable
 	public void saveToFile(final String path) throws IOException {
 		final SequentialOutputFormat outputFormat = FormatUtil.openOutput(SequentialOutputFormat.class, path, null);
 
-		final Iterator<T> iterator = this.iterator();
+		final Iterator<T> iterator = this.sortedIterator();
 		while (iterator.hasNext())
 			outputFormat.writeRecord(iterator.next());
 		outputFormat.close();
@@ -488,7 +518,7 @@ public class GenericTestRecords<T extends Record> implements Closeable, Iterable
 	@Override
 	public String toString() {
 		final StringBuilder stringBuilder = new StringBuilder("TestRecords: ");
-		final Iterator<T> iterator = this.iterator();
+		final Iterator<T> iterator = this.sortedIterator();
 		try {
 			for (int index = 0; index < 25 && iterator.hasNext(); index++) {
 				if (index > 0)

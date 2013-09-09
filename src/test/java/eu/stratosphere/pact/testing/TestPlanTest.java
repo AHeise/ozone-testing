@@ -278,8 +278,8 @@ public class TestPlanTest {
 			.getActualOutput());
 
 		// explicitly check output
-		Iterator<PactRecord> outputIterator = testPlan.getActualOutput().iterator();
-		Iterator<PactRecord> inputIterator = testPlan.getInput().iterator();
+		Iterator<PactRecord> outputIterator = testPlan.getActualOutput().sortedIterator();
+		Iterator<PactRecord> inputIterator = testPlan.getInput().sortedIterator();
 		for (int index = 0; index < 2; index++) {
 			assertTrue("too few actual output values", outputIterator.hasNext());
 			assertTrue("too few input values", outputIterator.hasNext());
@@ -847,8 +847,8 @@ public class TestPlanTest {
 			add(new PactInteger(1), new PactString("test1"));
 		testPlan2.run();
 
-		AssertUtil.assertIteratorEquals(testPlan1.getActualOutput(IntStringPair).iterator(),
-			testPlan2.getActualOutput(IntStringPair).iterator(),
+		AssertUtil.assertIteratorEquals(testPlan1.getActualOutput(IntStringPair).sortedIterator(),
+			testPlan2.getActualOutput(IntStringPair).sortedIterator(),
 			new PactRecordEqualer(IntStringPair), new PactRecordStringifier(IntStringPair));
 	}
 }

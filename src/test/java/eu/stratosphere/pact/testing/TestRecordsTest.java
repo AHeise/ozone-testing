@@ -48,13 +48,13 @@ public class TestRecordsTest {
 	public void singleAddShouldAddOneItem() {
 		AssertUtil.assertIteratorEquals("should be empty in the beginning",
 			new ArrayList<PactRecord>().iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 
 		this.records.add(new PactRecord(new PactInteger(1), new PactString("test1")));
 		AssertUtil.assertIteratorEquals("should contain one element after invoking add once",
 			Arrays.asList(new PactRecord(new PactInteger(1), new PactString("test1"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 
 		this.records.add(new PactRecord(new PactInteger(2), new PactString("test2")));
@@ -62,7 +62,7 @@ public class TestRecordsTest {
 			Arrays.asList(
 				new PactRecord(new PactInteger(1), new PactString("test1")),
 				new PactRecord(new PactInteger(2), new PactString("test2"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 	}
 
@@ -73,7 +73,7 @@ public class TestRecordsTest {
 	public void iterableAddShouldAddAllItems() {
 		AssertUtil.assertIteratorEquals("should be empty in the beginning",
 			new ArrayList<PactRecord>().iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 
 		this.records.add(Arrays.asList(new PactRecord(new PactInteger(1), new PactString("test1")),
@@ -82,7 +82,7 @@ public class TestRecordsTest {
 			Arrays.asList(
 				new PactRecord(new PactInteger(1), new PactString("test1")),
 				new PactRecord(new PactInteger(2), new PactString("test2"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 	}
 
@@ -93,7 +93,7 @@ public class TestRecordsTest {
 	public void arrayAddShouldAddAllItems() {
 		AssertUtil.assertIteratorEquals("should be empty in the beginning",
 			new ArrayList<PactRecord>().iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 
 		this.records.add(new PactRecord(new PactInteger(1), new PactString("test1")),
@@ -102,7 +102,7 @@ public class TestRecordsTest {
 			Arrays.asList(
 				new PactRecord(new PactInteger(1), new PactString("test1")),
 				new PactRecord(new PactInteger(2), new PactString("test2"))).iterator(),
-			this.records.iterator(),
+			this.records.sortedIterator(),
 			this.records.getTypeConfig());
 	}
 }
